@@ -39,7 +39,6 @@ sql = """CREATE TABLE WIKI (
 
 cursor.execute(sql)
 
-
 # Save data to the table
 
 scrap_db = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='Lhy19931103', db='scraping')
