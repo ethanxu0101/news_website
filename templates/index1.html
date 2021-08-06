@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+      <!-- 引入 echarts.js -->
+
+    <script src="http://libs.baidu.com/jquery/1.7.2/jquery.min.js"></script>
+    <!-- 引入jquery.js -->
+    <script src="https://cdn.bootcss.com/echarts/4.1.0.rc2/echarts.min.js"></script>
+
+
+    <script src="../static/echarts-wordcloud.min.js"></script>
+
+</head>
+<body>
+<div id="main" style="width:100%;height: 800px;border: 1px solid black"></div>
+
+<script type="text/javascript">
+    var myChart = echarts.init(document.getElementById('main'));
+    var app={
+        word1:[],
+        count1:[]
+    };
+    $(document).ready(function () {
+        getData();
+        console.log(app.word1);
+        console.log(app.count1);
+
+    });
+    function  getData() {
+        $.ajax({
+            url: '/test',
+            data: {},
+            type: 'POST',
+            async: false,
+            dataType: 'json',
+            success: function (data) {
+                console.log(data)
+                app.word1 = data.word;
+                app.count1 = data.count;
+            }
+        });
+    }
+    getData();
+    var aa=[];
+                for(var i = 0;i<app.word1.length;i++){
+                    aa.push({
+                        name:app.word1[i],
+                        value: app.count1[i]
+                    })
+                }
+
+      option = {
+    title: {
+        text: '词云',
+        x: 'center',
+        textStyle: {
+            fontSize: 23
+        }
+
+    },
+    backgroundColor: '#F7F7F7',
+    tooltip: {
+        show: true
+    },
+    series: [{
+        type: 'wordCloud',
+        textPadding: 0,
+        textStyle: {
+            normal: {
+                color: function() {
+                    return 'rgb(' + [
+                        Math.round(Math.random() * 160),
+                        Math.round(Math.random() * 160),
+                        Math.round(Math.random() * 160)
+                    ].join(',') + ')';
+                }
+            }
+        },
+        data: aa
+    }]
+};
+ myChart.setOption(option);
+
+</script>
+
+</body>
+</html>
+

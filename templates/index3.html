@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <script src="http://libs.baidu.com/jquery/1.7.2/jquery.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新闻爬虫</title><link rel="shortcut icon" href="{{ url_for('static', filename='images/123.png')}}"/>
+</head>
+<body>
+
+<div align="center" class="img">
+
+    <div class="img">
+        <div>
+            <h1>Welcome</h1>
+
+                <!--<button class="data-add-group" >启动爬虫</button>-->
+                <a href="test">启动爬虫</a>
+                <a href="aa">生成今日热点新闻词云</a>
+
+                <a href="news">查看今日推荐新闻</a>
+
+        </div>
+    </div>
+    <div class="logo-img">
+
+    </div>
+</div>
+<style>
+    .img{
+    position: absolute;
+        width: 100%;
+        height: 100%;
+    }
+    .logo-img{
+        background:url('https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1590139624133&di=d9b8663d1d1f28abe1c449327626a262&imgtype=0&src=http%3A%2F%2F5b0988e595225.cdn.sohucs.com%2Fimages%2F20170906%2F3a607bcd689b40f89deec78ae079d815.jpeg') no-repeat center center;
+        background-size:cover;
+        width: 100%;
+        height: 100%;
+        overflow:hidden;
+    }
+    a{
+        margin:10px;
+        font-size:30px;
+        text-decoration:none;
+        color:red
+    }
+    *{
+
+  color: #000000;
+}
+</style>
+<script>
+    $(".data-add-group").on("click",function(e){
+    alert('爬虫启动了~')
+   })
+</script>
+
+
+
+
+</body>
+</html>
