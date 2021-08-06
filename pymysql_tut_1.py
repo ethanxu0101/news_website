@@ -17,11 +17,7 @@ xl = xl[1:-1]
 
 print(xl)
 
-
-
-
 # Open database connection
-
 scrap_db = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='Lhy19931103', db='scraping')
 
 # prepare a cursor object using cursor() method
