@@ -21,7 +21,7 @@ sql = """CREATE TABLE SINA (
  TITLE CHAR(50),
  DATE CHAR(20),
  SOURCE CHAR(50),
- URL CHAR(50),
+ URL CHAR(100),
  CONTENT CHAR(50)
  )"""
 
@@ -82,10 +82,13 @@ def get_entertainment():
 
             print(item)
 
-            sqli = '''INSERT INTO SINA(TITLE, DATE, SOURCE, URL, CONTENT)
-                                                values(%s,%s,%s,%s,%s)
+            sqli = '''INSERT INTO SINA(TITLE, DATE, SOURCE, URL)
+                                                values(%s,%s,%s,%s)
                                                 '''
-            values = (item['title'], item['date'], item['source'], item['url'], item['content'])
+            values = (item['title'], item['date'], item['source'], item['url'])
+
+
+            save_sql(sqli, values)
             try:
                 save_sql(sqli, values)
                 print('导入数据库成功')
