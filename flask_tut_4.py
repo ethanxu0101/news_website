@@ -70,39 +70,49 @@ def select_news():
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql:root:Lhy19931103@127.0.0.1:3306/scraping'
+app.secret_key = "super secret key"
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:Lhy19931103@127.0.0.1:3306/scraping'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-class News(db.Model):
-    title = db.Column(db.String(50), primary_key=True)
-    date = db.Column(db.String(20))
-    source = db.Column(db.String(20))
-    url = db.Column(db.String(100))
+class User(db.Model): 
+    id = db.Column(db.Integer, primary_key=True)  
+    name = db.Column(db.String(20)) 
 
-@app.route('/')
-def index():
-    # 删除所有继承db.Model的表
-    db.drop_all()
+class Sina(db.Model):
+    TITLE = db.Column(db.String(50), primary_key=True)
+    # date = db.Column(db.String(20))
+    # source = db.Column(db.String(20))
+    URL = db.Column(db.String(100), primary_key=True)
 
-    # 创建所有继承db.Model的表
-    db.create_all()
 
-    # 创建对象（模型）
-    news_object = News(name='zs')
+# db.create_all()
+# name = 'Ethan Xu'
+# @app.route('/')
+# def index():
+#     # 删除所有继承db.Model的表
+#     db.drop_all()
 
-    # 将对象添加到会话（事物）中
-    db.session.add(news_object)
+#     # 创建所有继承db.Model的表
+#     db.create_all()
 
-    # 提交会话（事物），必须提交，否则数据库不会变化
-    db.session.commit()
-    return 'index'
+#     # 创建对象（模型）
+#     news_object = News(name='zs')
+
+#     # 将对象添加到会话（事物）中
+#     db.session.add(news_object)
+
+#     # 提交会话（事物），必须提交，否则数据库不会变化
+#     db.session.commit()
+#     return 'index'
 
 @app.route('/news')
 def news_list():
-    get_news()
-    data = select_news()
-    return render_template('index4_short.html', data=data)
+    # get_news()
+    # data = select_news()
+
+    news_list = Sina.query.all()
+    return render_template('index4.html', news_list=news_list)
 
 
 if __name__ == '__main__':
