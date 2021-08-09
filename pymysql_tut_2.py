@@ -1,7 +1,7 @@
 # !/usr/bin/env Python3
 # -*- coding: utf-8 -*-
-# @Handsome_Author   : Rui
-# @Time     : 2020/5/21 14:25
+# @Handsome_Author   : Ethan
+# @Time     : 2021/8/8 14:25
 
 import requests
 from lxml import etree
@@ -34,12 +34,12 @@ def save_sql(sqli,values):
     cursor.execute(sqli, values)
     conn.commit()
 
-def get_entertainment():
+def get_sports():
     headers = {
         'user-agent ': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 UBrowser/6.2.4098.3 Safari/537.36',
     }
 
-    url = 'https://ent.sina.com.cn/'
+    url = 'https://sports.sina.com.cn/'
 
     try:
         res = requests.get(url=url,headers=headers)
@@ -48,9 +48,15 @@ def get_entertainment():
 
     res_text = etree.HTML(res.text)
 
-    url_list = res_text.xpath("//div[@class='ty-top-ent']//a/@href")
+    url_list = res_text.xpath("//div[@class='ty-top-ent']//a[contains(@href,'shtml')]/@href")
+
+    # url_list = list(dict.fromkeys(url_list))
+    url_list = list(set(url_list))
     print('Total Number of URL List: ',len(url_list))
-    for x in url_list[:10]:
+
+    # print(url_list[2:10])
+    for x in url_list[2:10]:
+        print(x)
         if 'zt_d' not in x:
             try:
                 res2 = requests.get(url=x, headers=headers)
@@ -74,11 +80,14 @@ def get_entertainment():
             item['title'] = ''.join(res2_text.xpath("//h1[@class='main-title']/text()"))
             date = res2_text.xpath("//span[@class='date']/text()")
 
-            item['date'] = ''.join(date[0].split(" ")[0])
-            item['time'] = ''.join(date[0].split(" ")[1])
-            item['source'] = ''.join(res2_text.xpath("//div[@class='date-source']//a/text()"))
-            item['url'] = x
-            item['content'] = ''.join(res2_text.xpath("//div[@class='article']/p/text()")).replace('\r','').replace('\n','').replace('\t','').replace('\u3000','').replace('  ','').replace('\xa0 ','')
+            try:
+                item['date'] = ''.join(date[0].split(" ")[0])
+                item['time'] = ''.join(date[0].split(" ")[1])
+                item['source'] = ''.join(res2_text.xpath("//div[@class='date-source']//a/text()"))
+                item['url'] = x
+            except:
+                continue
+            # item['content'] = ''.join(res2_text.xpath("//div[@class='article']/p/text()")).replace('\r','').replace('\n','').replace('\t','').replace('\u3000','').replace('  ','').replace('\xa0 ','')
 
             print(item)
 
@@ -88,15 +97,15 @@ def get_entertainment():
             values = (item['title'], item['date'], item['source'], item['url'])
 
 
-            save_sql(sqli, values)
+            # save_sql(sqli, values)
             try:
                 save_sql(sqli, values)
-                print('导入数据库成功')
+                print('Store in database successfully')
             except:
                 conn.rollback()  # 如果发生错误则回滚
-                print('失败')
+                print('Somehow failure')
 
-    print('娱乐爬取完成~')
+    print('Finish Sports News Scraping')
 
 if __name__ == '__main__':
-    get_entertainment()
+    get_sports()

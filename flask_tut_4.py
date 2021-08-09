@@ -1,3 +1,9 @@
+"""
+Target: news scraping and show the content simultaneously 
+combination of: flask_tut_3 and pymysql_tut_2
+"""
+
+
 from numpy import empty
 import pymysql
 import pandas as pd
@@ -36,24 +42,24 @@ def get_news():
     all = tuple(all)
     wb = Workbook() # generate a workbook
     sheet = wb.active # activate the workbook sheet
-    sheet.title = 'Sports'  # name the current sheet
+    sheet.title = 'Entertainment'  # name the current sheet
     sheet.append(['Title','Date','Source', 'URL']) # generate the desired the columns 
     for j in all:
         try:
             sheet.append(tuple(j))  
         except:
             pass
-    wb.save('./today_news_sports.xlsx') # save out
+    wb.save('./today_news_entertainment.xlsx') # save out
 
 
 def select_news():
-    df = pd.read_excel('./today_news_sports.xlsx')
+    df = pd.read_excel('./today_news_entertainment.xlsx')
 
     df = pd.DataFrame(df, columns=['Title','URL'])
 
     the_sum = []
 
-    for x in range(6):
+    for x in range(1,5):
         z = df.iloc[x, :].values
         # print(5555,z)
         if z is not empty:
@@ -64,19 +70,39 @@ def select_news():
 
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql:root:Lhy19931103@127.0.0.1:3306/scraping'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
+class News(db.Model):
+    title = db.Column(db.String(50), primary_key=True)
+    date = db.Column(db.String(20))
+    source = db.Column(db.String(20))
+    url = db.Column(db.String(100))
+
+@app.route('/')
+def index():
+    # 删除所有继承db.Model的表
+    db.drop_all()
+
+    # 创建所有继承db.Model的表
+    db.create_all()
+
+    # 创建对象（模型）
+    news_object = News(name='zs')
+
+    # 将对象添加到会话（事物）中
+    db.session.add(news_object)
+
+    # 提交会话（事物），必须提交，否则数据库不会变化
+    db.session.commit()
+    return 'index'
 
 @app.route('/news')
 def news_list():
     get_news()
     data = select_news()
-
-    # print(len(data))
     return render_template('index4_short.html', data=data)
-
-
-@app.route('/')
-def index():
-    return render_template('index1_short.html')
 
 
 if __name__ == '__main__':
