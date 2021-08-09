@@ -1,123 +1,53 @@
 import time
 import requests
+import pandas as pd
 from src import db
 from bs4 import BeautifulSoup
+from src.utils import get_html, get_nodes, get_each_node_data, get_importance
 
 
 
+def forge():
+    """Generate fake data."""
 
+    print('start generating')
+    db.create_all()
 
-def get_html(url):
-    headers = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko)'}
-    resp = requests.get(url, headers=headers)
-    return resp.text
-
-
-def get_nodes(html):
-    soup = BeautifulSoup(html, 'html.parser')
-    nodes = soup.find_all('div', class_='cc-cd') # 注意别忘了class_参数后面的下划线
-    return nodes
-
-
-def get_sports():
-    headers = {
-        'user-agent ': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 UBrowser/6.2.4098.3 Safari/537.36',
-    }
+    name = 'Ethan Xu'
+    user = User(name=name)
+    db.session.add(user)
 
     url = 'https://tophub.today'
     html = get_html(url)
     nodes = get_nodes(html)
 
+    df = pd.DataFrame()
+    df = get_each_node_data(df, nodes)
+
     now = int(time.time())
-    for node in nodes:
-        source = node.find('div', class_='cc-cd-lb').text.strip()
-        if source not in ['微博', '知乎', 'IT之家', '哔哩哔哩', '虎扑社区', '机核网', 'CSDN论坛']:
-            continue
-        
-        messages = node.find('div', class_='cc-cd-cb-l nano-content').find_all('a')
-        for message in messages:
-            content = message.find('span', class_='t').text.strip()
+    df = df[df['end_time'] >= (now - 24 * 3600)]
+    df = df.dropna()
 
-        data = {
-                    'content': [content],
-                    'url': [message['href']],
-                    'source': [source],
-                    'start_time': [now],
-                    'end_time': [now]
-                }
+    for i, row in df.iterrows():
+        n = News(id = i, title=row['title'], url=row['url'], source=row['source'], end_time=row['end_time'])
+        db.session.add(n)
 
-    try:
-        res = requests.get(url=url,headers=headers)
-    except:
-        res = requests.get(url=url, headers=headers)
-
-    res_text = etree.HTML(res.text)
-
-    url_list = res_text.xpath("//div[@class='ty-top-ent']//a[contains(@href,'shtml')]/@href")
-
-    # url_list = list(dict.fromkeys(url_list))
-    url_list = list(set(url_list))
-    print('Total Number of URL List: ',len(url_list))
-
-    # print(url_list[2:10])
-    for x in url_list[2:10]:
-        print(x)
-        if 'zt_d' not in x:
-            try:
-                res2 = requests.get(url=x, headers=headers)
-            except:
-                res2 = requests.get(url=x, headers=headers)
-            # print(res2.encoding)
-            try:
-                data = res2.text
-                data = data.encode('ISO-8859-1')
-                data = data.decode('utf-8')
-            except:
-                continue
-            res2_text = etree.HTML(data)
-
-            """
-            item has keys: title, date, time, source, url, content
-            
-            """
-
-            item = {}
-            item['title'] = ''.join(res2_text.xpath("//h1[@class='main-title']/text()"))
-            date = res2_text.xpath("//span[@class='date']/text()")
-
-            try:
-                item['date'] = ''.join(date[0].split(" ")[0])
-                item['time'] = ''.join(date[0].split(" ")[1])
-                item['source'] = ''.join(res2_text.xpath("//div[@class='date-source']//a/text()"))
-                item['url'] = x
-            except:
-                continue
-            # item['content'] = ''.join(res2_text.xpath("//div[@class='article']/p/text()")).replace('\r','').replace('\n','').replace('\t','').replace('\u3000','').replace('  ','').replace('\xa0 ','')
-
-            print(item)
-
-            sqli = '''INSERT INTO SINA(TITLE, DATE, SOURCE, URL)
-                                                values(%s,%s,%s,%s)
-                                                '''
-            values = (item['title'], item['date'], item['source'], item['url'])
+    db.session.commit()
 
 
-            # save_sql(sqli, values)
-            try:
-                save_sql(sqli, values)
-                print('Store in database successfully')
-            except:
-                conn.rollback()  # 如果发生错误则回滚
-                print('Somehow failure')
+def initdb(drop):
+    """Initialize the database."""
+    if drop:
+        db.drop_all()
+    db.create_all()
 
-    print('Finish Sports News Scraping')
-
-
-
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(20))
 
 class News(db.Model):
-    # id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(60), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(60))
     url = db.Column(db.String(60))
     source = db.Column(db.String(60))
-    # year = db.Column(db.String(4))
+    end_time = db.Column(db.String(4))

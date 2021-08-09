@@ -25,8 +25,9 @@ def index():
     #     # flash('Item created.')
     #     return redirect(url_for('index'))
 
-    news = News.query.all()
-    return render_template('index.html', news=news)
+    news_list = News.query.all()
+    # print(news)
+    return render_template('index4.html', news_list=news_list)
 
 
 # @app.route('/movie/edit/<int:movie_id>', methods=['GET', 'POST'])

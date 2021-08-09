@@ -1,27 +1,16 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
-
+import time
+import pandas as pd
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+# from src.models import User, News
+
 # from flask_login import LoginManager
 
 
-from src import views, errors, commands
-
-
-cursor.execute("DROP TABLE IF EXISTS SINA ")
-
-# Create table as per requirement
-sql = """CREATE TABLE SINA (
- TITLE CHAR(50),
- DATE CHAR(20),
- SOURCE CHAR(50),
- URL CHAR(100),
- CONTENT CHAR(50)
- )"""
-
-cursor.execute(sql)
+    # click.echo('Done.')
 
 
 # SQLite URI compatible
@@ -33,14 +22,14 @@ else:
 
 app = Flask(__name__)
 # app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev')
-# app.config['SQLALCHEMY_DATABASE_URI'] = prefix + os.path.join(os.path.dirname(app.root_path), os.getenv('DATABASE_FILE', 'test.db'))
-db_name = 'test.db'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_name
+app.config['SQLALCHEMY_DATABASE_URI'] = prefix + os.path.join(app.root_path, 'data.db')
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_name
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-print(df)
+
+
 # login_manager = LoginManager(app)
 
 
@@ -61,4 +50,9 @@ print(df)
 #     user = User.query.first()
 #     return dict(user=user)
 
+from src.models import forge, initdb
 
+initdb(True)
+forge()
+
+from src import views, errors, commands
