@@ -1,7 +1,11 @@
+# encoding: utf-8
+from flask import Flask, render_template
+from flask_sqlalchemy import SQLAlchemy
+import jieba
 import requests
 from bs4 import BeautifulSoup
 import time
-import pandas
+import pandas as pd
 import re
 from sqlalchemy import create_engine
 
@@ -17,22 +21,18 @@ def get_nodes(html):
     return nodes
 
 
-url = 'https://tophub.today'
-html = get_html(url)
-nodes = get_nodes(html)
-
 def get_each_node_data(df, nodes):
     # 获取当前时间
     now = int(time.time())
 
     # 遍历每个榜
     for node in nodes:
-        # 获得榜单的名字
+        # obtain the name in the nodes
         source = node.find('div', class_='cc-cd-lb').text.strip()
         # print(source)
-        if source not in ['微博', '知乎', 'IT之家', '哔哩哔哩', '虎扑社区', '机核网', 'CSDN论坛']:
+        if source not in ['微博', 'IT之家', '哔哩哔哩', '虎扑社区', '机核网']:
             continue
-        # 获取榜单里的数据内容
+        # obtain the content 
         messages = node.find('div', class_='cc-cd-cb-l nano-content').find_all('a')
         for message in messages:
             content = message.find('span', class_='t').text.strip()
@@ -48,8 +48,8 @@ def get_each_node_data(df, nodes):
                     'end_time': [now]
                 }
 
-                item = pandas.DataFrame(data)
-                df = pandas.concat([df, item], ignore_index=True)
+                item = pd.DataFrame(data)
+                df = pd.concat([df, item], ignore_index=True)
 
             # 如果已经在数据库中，则更新相关信息
             else:
@@ -59,18 +59,71 @@ def get_each_node_data(df, nodes):
     return df
 
 
+def get_importance(row, corpus):
+    importance = 0
+    for each_word in corpus:
+        if each_word in row['content']:
+            importance += corpus[each_word]
+
+    if row['source'] in ['微博']:
+        importance = importance * 2
+
+    return importance
+
+
 url = 'https://tophub.today'
 html = get_html(url)
 nodes = get_nodes(html)
 
-df = pandas.DataFrame()
+df = pd.DataFrame()
 df = get_each_node_data(df, nodes)
 
+# print(df.shape)
+# print(df.head())
+# df = pd.read_excel('test.xlsx')
 
-# path = r'C:\Users\yixu\Documents\Git_Project\news_website'
-engine = create_engine('sqlite:///test.db')  # path为数据库的路径(推荐写成绝对路径)
-df.to_sql('tophub', con=engine, if_exists='replace') # table为保存数据库table的名字，可以随便写，DataFrame会为为什么自动创建
+## fliter news within one day
+now = int(time.time())
+df = df[df['end_time'] >= (now - 24 * 3600)]
+df = df.dropna()
 
-print(df.shape)
-print(df.head())
+## generatr corpus database
+content_list = df.content.to_numpy()
+content_text = ''.join(content_list)
+corpus_list = list(jieba.cut(content_text))
 
+word_count = dict()
+for each_word in corpus_list:
+    if not each_word.isalpha():
+        continue
+    word_count[each_word] = word_count.get(each_word, 0) + 1
+
+min_num = 1
+max_num = 31
+cleaned_corpus = dict()
+for each_word in word_count:
+    if min_num < word_count[each_word] < max_num:
+        cleaned_corpus[each_word] = word_count[each_word]
+
+
+# calculate the importance value for each news
+df['importance'] = df.apply(lambda x: get_importance(x, cleaned_corpus), axis=1)
+
+df = df.sort_values(by='importance', ascending=False).iloc[:40, ].copy()
+print(df[['content', 'source', 'importance']].head(40))
+
+
+engine = create_engine('sqlite:////home/user/Documents/news_website/test.db')  
+df.to_sql('tophub', con=engine, if_exists='replace') 
+
+
+
+app = Flask(__name__)
+
+@app.route('/news')
+def news_list():
+    get_news()
+    data = select_news()
+
+    # print(len(data))
+    return render_template('index4_short.html', data=data)
