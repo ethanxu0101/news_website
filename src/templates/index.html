@@ -2,6 +2,7 @@
 
 {% block content %}
 <p>{{ news_list|length }} Titles</p>
+<a href="{{ url_for('index') }}">REFRESH</a>
 <ul class="news-list">
     {% for news in news_list %} 
         <li> <a href="{{news.url}}">{{news.title}}</a>{{news.source}}</li>

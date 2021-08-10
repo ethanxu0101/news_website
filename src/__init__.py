@@ -52,7 +52,7 @@ db = SQLAlchemy(app)
 
 from src.models import forge, initdb
 
-initdb(True)
-forge()
+# initdb(True)
+# forge()
 
 from src import views, errors, commands

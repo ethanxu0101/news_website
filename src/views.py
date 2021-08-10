@@ -3,7 +3,7 @@ from flask import render_template, request, url_for, redirect, flash
 # from flask_login import login_user, login_required, logout_user, current_user
 
 from src import app, db
-from src.models import News
+from src.models import News, forge, initdb
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -24,32 +24,36 @@ def index():
     #     # db.session.commit()
     #     # flash('Item created.')
     #     return redirect(url_for('index'))
-
+    initdb(True)
+    forge()
     news_list = News.query.all()
     # print(news)
     return render_template('index.html', news_list=news_list)
 
 
-# @app.route('/movie/edit/<int:movie_id>', methods=['GET', 'POST'])
-# @login_required
-# def edit(movie_id):
-#     movie = Movie.query.get_or_404(movie_id)
+# @app.route('/refresh', methods=['POST'])
+# # @login_required
+# def refresh():
+#     # movie = Movie.query.get_or_404(movie_id)
 
 #     if request.method == 'POST':
-#         title = request.form['title']
-#         year = request.form['year']
+#         # title = request.form['title']
+#         # year = request.form['year']
 
-#         if not title or not year or len(year) != 4 or len(title) > 60:
-#             flash('Invalid input.')
-#             return redirect(url_for('edit', movie_id=movie_id))
+#         # if not title or not year or len(year) != 4 or len(title) > 60:
+#         #     flash('Invalid input.')
+#         #     return redirect(url_for('edit', movie_id=movie_id))
 
-#         movie.title = title
-#         movie.year = year
+#         # movie.title = title
+#         # movie.year = year
+#         initdb(True)
+#         forge() 
+
 #         db.session.commit()
-#         flash('Item updated.')
+#         flash('News updated.')
 #         return redirect(url_for('index'))
 
-#     return render_template('edit.html', movie=movie)
+#     return render_template('refresh.html')
 
 
 # @app.route('/movie/delete/<int:movie_id>', methods=['POST'])
