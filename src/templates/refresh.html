@@ -1,10 +1,12 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h3>Refresh News</h3>
-<form method="post">
-    Name <input type="text" name="title" autocomplete="off" required value="{{ movie.title }}">
-    Year <input type="text" name="year" autocomplete="off" required value="{{ movie.year }}">
-    <input class="btn" type="submit" name="submit" value="Update">
-</form>
+<p>{{ news_list|length }} Titles</p>
+<a href="{{ url_for('refresh') }}">REFRESH</a>
+<ul class="news-list">
+    {% for news in news_list %} 
+        <li> <a href="{{news.url}}">{{news.title}}</a>{{news.source}}</li>
+    {% endfor %} 
+</ul>
+<!-- <img alt="Walking Totoro" class="totoro" src="{{ url_for('static', filename='images/totoro.gif') }}" title="to~to~ro~"> -->
 {% endblock %}

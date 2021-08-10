@@ -8,36 +8,27 @@ from src.models import News, forge, initdb
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    initdb(True)
-    forge()
+    # initdb(True)
+    # forge()
     news_list = News.query.all()
     # print(news)
     return render_template('index.html', news_list=news_list)
 
 
-# @app.route('/refresh', methods=['POST'])
-# # @login_required
-# def refresh():
-#     # movie = Movie.query.get_or_404(movie_id)
+@app.route("/refresh/", methods=['POST'])
+def refresh():
 
-#     if request.method == 'POST':
-#         # title = request.form['title']
-#         # year = request.form['year']
+    initdb(True)
+    forge() 
 
-#         # if not title or not year or len(year) != 4 or len(title) > 60:
-#         #     flash('Invalid input.')
-#         #     return redirect(url_for('edit', movie_id=movie_id))
+    # db.session.commit()
+    flash('News updated.')
+    # return redirect(url_for('index'))
+    news_list = News.query.all()
+    return render_template('index.html', news_list=news_list)
 
-#         # movie.title = title
-#         # movie.year = year
-#         initdb(True)
-#         forge() 
-
-#         db.session.commit()
-#         flash('News updated.')
-#         return redirect(url_for('index'))
-
-#     return render_template('refresh.html')
+    # news_list = News.query.all()
+    # return render_template('refresh.html', news_list=news_list)
 
 
 # @app.route('/movie/delete/<int:movie_id>', methods=['POST'])
