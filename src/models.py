@@ -7,10 +7,10 @@ from src.utils import get_html, get_nodes, get_each_node_data, get_importance, f
 
 
 
-def forge():
+def forge(num_news=20):
     """Generate fake data."""
 
-    print('start generating')
+    print('Start Scraping News')
     db.create_all()
 
     name = 'Ethan Xu'
@@ -28,15 +28,14 @@ def forge():
     df = df[df['end_time'] >= (now - 24 * 3600)]
     df = df.dropna()
 
-    df = filter_news(df)
-
+    df = filter_news(df, num_news=num_news)
 
     for i, row in df.iterrows():
         n = News(id = i, title=row['title'], url=row['url'], source=row['source'], end_time=row['end_time'])
         db.session.add(n)
 
     db.session.commit()
-
+    print('Finish !')
 
 def initdb(drop):
     """Initialize the database."""
