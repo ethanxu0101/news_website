@@ -6,12 +6,7 @@ import pandas as pd
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 # from src.models import User, News
-
 # from flask_login import LoginManager
-
-
-    # click.echo('Done.')
-
 
 # SQLite URI compatible
 WIN = sys.platform.startswith('win')
@@ -21,7 +16,7 @@ else:
     prefix = 'sqlite:////'
 
 app = Flask(__name__)
-# app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev')
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev')
 app.config['SQLALCHEMY_DATABASE_URI'] = prefix + os.path.join(app.root_path, 'data.db')
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_name
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
