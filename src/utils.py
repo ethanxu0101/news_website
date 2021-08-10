@@ -59,7 +59,7 @@ def get_each_node_data(df, nodes):
 def get_importance(row, corpus):
     importance = 0
     for each_word in corpus:
-        if each_word in row['content']:
+        if each_word in row['title']:
             importance += corpus[each_word]
 
     if row['source'] in ['微博']:
@@ -70,9 +70,9 @@ def get_importance(row, corpus):
 
 def filter_news(df):
     ## generatr corpus database
-    content_list = df.content.to_numpy()
-    content_text = ''.join(content_list)
-    corpus_list = list(jieba.cut(content_text))
+    title_list = df.title.to_numpy()
+    title_text = ''.join(title_list)
+    corpus_list = list(jieba.cut(title_text))
 
     word_count = dict()
     for each_word in corpus_list:

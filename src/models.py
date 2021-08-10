@@ -3,7 +3,7 @@ import requests
 import pandas as pd
 from src import db
 from bs4 import BeautifulSoup
-from src.utils import get_html, get_nodes, get_each_node_data, get_importance
+from src.utils import get_html, get_nodes, get_each_node_data, get_importance, filter_news
 
 
 
@@ -28,6 +28,9 @@ def forge():
     df = df[df['end_time'] >= (now - 24 * 3600)]
     df = df.dropna()
 
+    df = filter_news(df)
+
+
     for i, row in df.iterrows():
         n = News(id = i, title=row['title'], url=row['url'], source=row['source'], end_time=row['end_time'])
         db.session.add(n)
@@ -41,9 +44,11 @@ def initdb(drop):
         db.drop_all()
     db.create_all()
 
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(20))
+
 
 class News(db.Model):
     id = db.Column(db.Integer, primary_key=True)

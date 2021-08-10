@@ -27,7 +27,7 @@ def index():
 
     news_list = News.query.all()
     # print(news)
-    return render_template('index4.html', news_list=news_list)
+    return render_template('index.html', news_list=news_list)
 
 
 # @app.route('/movie/edit/<int:movie_id>', methods=['GET', 'POST'])
