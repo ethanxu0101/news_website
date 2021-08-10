@@ -5,8 +5,6 @@ import requests
 from bs4 import BeautifulSoup
 
 
-
-
 def get_html(url):
     headers = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko)'}
     resp = requests.get(url, headers=headers)
@@ -23,6 +21,7 @@ def get_each_node_data(df, nodes):
     now = int(time.time())
 
     # 遍历每个榜
+    item_list = []
     for node in nodes:
         # obtain the name in the nodes
         source = node.find('div', class_='cc-cd-lb').text.strip()
@@ -31,27 +30,22 @@ def get_each_node_data(df, nodes):
             continue
         # obtain the content 
         messages = node.find('div', class_='cc-cd-cb-l nano-content').find_all('a')
+
         for message in messages:
             title = message.find('span', class_='t').text.strip()
 
-            # 如果不在数据库中，就添加新的数据
-            if df.empty or df[df.title == title].empty:
-                # 注意创建新的DataFrame的时候，即使只有一条数据，也需要用列表
-                data = {
-                    'title': [title],
-                    'url': [message['href']],
-                    'source': [source],
-                    'start_time': [now],
-                    'end_time': [now]
-                }
+            data = {
+                'title': [title],
+                'url': [message['href']],
+                'source': [source],
+                'start_time': [now],
+                'end_time': [now]
+            }
 
-                item = pd.DataFrame(data)
-                df = pd.concat([df, item], ignore_index=True)
+            item = pd.DataFrame(data)
+            item_list.append(item)
 
-            # 如果已经在数据库中，则更新相关信息
-            else:
-                index = df[df.title == title].index[0]
-                df.at[index, 'end_time'] = now
+    df = pd.concat(item_list, ignore_index=True)
 
     return df
 
@@ -68,7 +62,7 @@ def get_importance(row, corpus):
     return importance
 
 
-def filter_news(df):
+def filter_news(df, num_news):
     ## generatr corpus database
     title_list = df.title.to_numpy()
     title_text = ''.join(title_list)
@@ -90,6 +84,9 @@ def filter_news(df):
     
     df['importance'] = df.apply(lambda x: get_importance(x, cleaned_corpus), axis=1)
 
-    df = df.sort_values(by='importance', ascending=False).iloc[:40, ].copy()
+    assert num_news > 0, "Please give a positive number"
+
+    num_news = min(num_news, df.shape[0])
+    df = df.sort_values(by='importance', ascending=False).iloc[:num_news, ].copy()
 
     return df
