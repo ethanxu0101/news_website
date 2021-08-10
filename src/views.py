@@ -21,14 +21,7 @@ def refresh():
     initdb(True)
     forge() 
 
-    # db.session.commit()
-    flash('News updated.')
-    # return redirect(url_for('index'))
-    news_list = News.query.all()
-    return render_template('index.html', news_list=news_list)
-
-    # news_list = News.query.all()
-    # return render_template('refresh.html', news_list=news_list)
+    return redirect(url_for('index'))
 
 
 # @app.route('/movie/delete/<int:movie_id>', methods=['POST'])
