@@ -8,22 +8,6 @@ from src.models import News, forge, initdb
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    # if request.method == 'POST':
-    #     # if not current_user.is_authenticated:
-    #     #     return redirect(url_for('index'))
-
-    #     title = request.form['title']
-    #     year = request.form['year']
-
-    #     if not title or not year or len(year) != 4 or len(title) > 60:
-    #         flash('Invalid input.')
-    #         return redirect(url_for('index'))
-
-    #     news = News(title=title, year=year)
-    #     # db.session.add(news)
-    #     # db.session.commit()
-    #     # flash('Item created.')
-    #     return redirect(url_for('index'))
     initdb(True)
     forge()
     news_list = News.query.all()
